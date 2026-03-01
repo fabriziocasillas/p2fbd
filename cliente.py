@@ -17,8 +17,26 @@ class Cliente:
         self.direccion = direccion
 
     def to_csv(self):
-        return f"{self.id_cliente},{self.nombre},{self.curp},{self.telefono},{self.correo},{self.direccion}"
+        return f"{self.id_cliente},{self.nombre_completo},{self.curp},{self.telefono},{self.correo},{self.direccion}"
 
+    @classmethod
+    def from_csv_row(cls, row):
+        """basicamente necesita el classmethod, por que si no python espera como un self, pero si no existes 
+        al momento de leerte como vas a pasarte a ti mismo, entonces pues el classmetho permite evitar eso, y pues nada
+        esto crea un objeto de tipo cliente que toma 
+
+        :param row: lista con los atributos del cliente que viene del csv
+
+        :return: una ijnstancia del cliente
+        """
+        return cls(
+            int(row[0]),
+            row[1],
+            row[2],
+            row[3],
+            row[4],
+            row[5]
+        )
     def __str__(self):
         return (
             f"Cliente("
@@ -30,3 +48,5 @@ class Cliente:
             f"direccion='{self.direccion}'"
             f")"
         )
+
+    

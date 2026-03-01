@@ -1,4 +1,5 @@
 from cliente import Cliente
+from clienteedit import ClienteEdit
 
 def main():
     opt = 4
@@ -23,6 +24,7 @@ def main():
 
 def menuc():
     opc = 5
+    ced = ClienteEdit()
     while(opc != 0):
         try:
             opc = int(input("Bienvenido al sistema manejador de clientes, presiona "
@@ -31,10 +33,16 @@ def menuc():
         except ValueError:
             print("eso no es un numero")
 
-        if opc == 0:
-            print("Saliendo...")
-        elif opc == 1:
-            print("Sucursal")
+        if opc == 1:
+            idc = input("dame la id del cliente")
+            nmc = input("dame su nombre completo")
+            cpc = input("dame su curp")
+            tlc = input("dame  su telefono")
+            cec = input("dame su correo electrónico ")
+            drc = input("dame dirección del cliente")
+            ncli = Cliente(idc, nmc, cpc, tlc, cec, drc)
+            ced.agregar_cliente(ncli)
+
         elif opc == 2:
             print("Insumos")
         elif opc == 3:
