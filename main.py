@@ -5,11 +5,8 @@ def main():
     opt = 4
 
     while(opt != 0):
-        try:
-            opt = int(input("Bienvenido al sistema manejador de la famracia de otro mundo, presiona \n 1 para sucursal \n 2 para insumos \n 3 para clientes \n 0 para salir \n"))
-        except ValueError:
-            print("eso no es un numero")
-
+        print("Bienvenido al sistema manejador de la famracia de otro mundo, presiona \n 1 para sucursal \n 2 para insumos \n 3 para clientes \n 0 para salir \n")
+        opt = recnum()
         if opt == 0:
             print("Saliendo...")
         elif opt == 1:
@@ -26,27 +23,75 @@ def menuc():
     opc = 5
     ced = ClienteEdit()
     while(opc != 0):
-        try:
-            opc = int(input("Bienvenido al sistema manejador de clientes, presiona "
+        print("Bienvenido al sistema manejador de clientes, presiona "
                             "\n 1 para agregar clientes \n 2 para consultar clientes por ID \n 3 para editar un cliente \n 4 Para eliminar un cliente" \
-                            "\n 0 para salir  \n"))
-        except ValueError:
-            print("eso no es un numero")
+                            "\n 0 para salir  \n")
+        opc = recnum()
 
         if opc == 1:
-            idc = input("dame la id del cliente")
-            nmc = input("dame su nombre completo")
-            cpc = input("dame su curp")
-            tlc = input("dame  su telefono")
-            cec = input("dame su correo electrónico ")
-            drc = input("dame dirección del cliente")
+
+            print("dame la id del cliente \n")
+            idc = -1
+            while(idc==-1):
+                idc = recnum()
+            
+            nmc = input("dame su nombre completo \n ")
+            cpc = input("dame su curp \n ")
+            tlc = input("dame  su telefono \n ")
+            cec = input("dame su correo electrónico \n ")
+            drc = input("dame dirección del cliente \n")
             ncli = Cliente(idc, nmc, cpc, tlc, cec, drc)
             ced.agregar_cliente(ncli)
+            print("cliente agregado:")
+            print(ncli)
 
         elif opc == 2:
-            print("Insumos")
+            print("dame la id del cliente a buscar\n")
+            idc = -1
+            while(idc==-1):
+                idc = recnum()
+            clie = ced.buscar_por_id(idc)
+            if clie == []:
+                print("no se encontro el cliente buscado")
+            else:
+                print(clie)
+
         elif opc == 3:
-            print("Clientes")
+            print("cliente a editar\n")
+            print("dame la id del cliente \n")
+            idcb = -1
+            while(idcb==-1):
+                idcb = recnum()
+            nmc = input("dame su nombre completo \n ")
+            cpc = input("dame su curp \n ")
+            tlc = input("dame  su telefono \n ")
+            cec = input("dame su correo electrónico \n ")
+            drc = input("dame dirección del cliente \n")
+            ncli = Cliente(idcb, nmc, cpc, tlc, cec, drc)
+            ced.editar_cliente(ncli)
+            print("cliente editado")
+            print(ncli)
+        elif opc == 4:
+            print("dame la id del cliente \n")
+            idce = -1
+            while(idce==-1):
+                idce = recnum()
+            cliel = ced.buscar_por_id(idce)
+            if cliel == []:
+                print("no se encontro el cliente buscado")
+            else:
+                ced.eliminar_cliente(idce)
+                print("cliente eliminado")
+
+def recnum():
+    try:
+        opc = int(input(""))
+    except ValueError:
+        print("eso no es un numero")
+        opc = -1
+
+    return opc
+
 
 
 
