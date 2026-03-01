@@ -17,8 +17,14 @@ class Cliente:
         self.direccion = direccion
 
     def to_csv(self):
-        return f"{self.id_cliente},{self.nombre_completo},{self.curp},{self.telefono},{self.correo},{self.direccion}"
-
+        return [
+            self.id_cliente,
+            self.nombre_completo,
+            self.curp,
+            self.telefono,
+            self.correo,
+            self.direccion
+        ]
     @classmethod
     def from_csv_row(cls, row):
         """basicamente necesita el classmethod, por que si no python espera como un self, pero si no existes 
