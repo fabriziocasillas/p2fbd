@@ -34,7 +34,7 @@ class ClienteEdit:
         for cliente in self.obtener_todos():
             if cliente.id_cliente == idc:
                 return cliente
-        return None
+        return []
 
     def eliminar_cliente(self, idc):
         """sobreescribimos todo el csv. si la id de un cliente es la que queremos 
@@ -45,4 +45,24 @@ class ClienteEdit:
         """
         clientes = self.obtener_todos()
         clientes = [c for c in clientes if c.id_cliente != idc]
-        self.csv.overwrite([c.to_csv_row() for c in clientes])
+        self.csv.overwrite([c.to_csv() for c in clientes])
+
+    def editar_cliente(self, clia):
+        """es casi lo mismo que al eliminar, solo que en lugar de no incluirlo en la lista de clientes a 
+        sobreescribir se añade el cliente actualizado el lugar del viejo cliente
+
+        :param clia: el cliente actualizado
+        """
+        clientes = self.obtener_todos()
+        encontrado = False
+
+        for i, cliente in enumerate(clientes):
+            if cliente.id_cliente == clia.id_cliente:
+                clientes[i] = clia
+                encontrado = True
+                break
+
+        if not encontrado:
+            raise ValueError("cliente no encontrado")
+
+        self.csv.overwrite([c.to_csv() for c in clientes])
