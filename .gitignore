@@ -1,0 +1,4 @@
+*.pdf
+*.pdf:Zone.Identifier
+__pycache__/
+*.pyc
