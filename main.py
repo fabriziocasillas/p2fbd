@@ -56,9 +56,12 @@ def menus():
                 horario_sucursal,
                 gerente_sucursal,
             )
-            sed.agregar_sucursal(nueva_sucursal)
-            print("sucursal agregada:")
-            print(nueva_sucursal)
+            confirmacion = sed.agregar_sucursal(nueva_sucursal)
+            if(confirmacion):
+                print("INFO: Sucursal agregada correctamente.")
+                print(nueva_sucursal)
+            else:
+                print("Hubo un error al agregar la sucursal, segurx que no existe la ID??")
 
         elif option == 2:
             print("\nIngresa el id de la sucursal a buscar:")
@@ -90,24 +93,28 @@ def menus():
                 horario_sucursal,
                 gerente_sucursal,
             )
-            try:
-                sed.editar_sucursal(sucursal_editada)
-                print("INFO: ¡Sucursal editada exitosamente!")
-                print(sucursal_editada + "\n")
-            except ValueError as e:
-                print(f"error: {e}")
+            encontrado = sed.editar_sucursal(sucursal_editada)
+            if (encontrado):
+                print("\nINFO: Sucursal editada correctamente. \n")
+                print(sucursal_editada)
+            else:
+                print("Sucursal no encontrada, segurx que esa es la ID?")
 
         elif option == 4:
             print("Ingresa el id de la sucursal a eliminar: \n")
             idse = -1
             while idse == -1:
                 idse = verifica_entrada()
-            sucl = sed.buscar_por_id(idse)
-            if sucl == []:
-                print("INFO: No se encontro la sucursal buscada.")
-            else:
+            sucl = sed.eliminar_sucursal(idse)
+            if sucl:
                 sed.eliminar_sucursal(idse)
                 print("INFO: Sucursal eliminada correctamente.")
+            else:
+                print(
+                    "\nINFO: No se encontro la sucursal a eliminar con ese ID" 
+                )
+
+
 
 
 def menuc():
@@ -187,15 +194,15 @@ def menuc():
             id_cliente_eliminar = -1
             while id_cliente_eliminar == -1:
                 id_cliente_eliminar = verifica_entrada()
-            cliente_a_eliminar = ced.buscar_por_id(id_cliente_eliminar)
-            if cliente_a_eliminar == []:
-                print(
-                    "\nINFO: No se encontro el cliente con id: " + id_cliente_eliminar
-                )
-            else:
+            cliente_a_eliminar = ced.eliminar_cliente(id_cliente_eliminar)
+            if cliente_a_eliminar:
                 ced.eliminar_cliente(id_cliente_eliminar)
                 print("\nINFO: Cliente Eliminado")
 
+            else:
+                print(
+                    "\nINFO: No se encontro el cliente a eliminar" 
+                )
 
 def menui():
     option = 5

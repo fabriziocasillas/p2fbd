@@ -19,7 +19,7 @@ class ClienteEdit:
         if existente is not None:
             return False
 
-        self.csv.write_row(cliente.to_csv_row())
+        self.csv.write_row(cliente.to_csv())
         return True
 
         
@@ -52,9 +52,15 @@ class ClienteEdit:
 
         :param idc: la ID del cliente a eliminar
         """
-        clientes = self.obtener_todos()
-        clientes = [c for c in clientes if c.id_cliente != idc]
-        self.csv.overwrite([c.to_csv() for c in clientes])
+
+        cen = self.buscar_por_id(idc)
+        if not cen:
+            return False
+        else:
+            clientes = self.obtener_todos()
+            clientes = [c for c in clientes if c.id_cliente != idc]
+            self.csv.overwrite([c.to_csv() for c in clientes])
+            return True
 
     def editar_cliente(self, clia):
         """es casi lo mismo que al eliminar, solo que en lugar de no incluirlo en la lista de clientes a 

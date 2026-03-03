@@ -11,7 +11,13 @@ class SucursalEdit:
 
         :param sucursal: la sucursal a guardar
         """
+        existente = self.buscar_por_id(sucursal.id_sucursal)
+
+        if existente is not None:
+            return False
+
         self.csv.write_row(sucursal.to_csv())
+        return True
 
     def obtener_todas(self):
         """Lee todas las sucursales del CSV.
@@ -30,16 +36,22 @@ class SucursalEdit:
         for sucursal in self.obtener_todas():
             if sucursal.id_sucursal == ids:
                 return sucursal
-        return []
+        return None
 
     def eliminar_sucursal(self, ids):
         """Elimina la sucursal con el id dado reescribiendo el CSV sin ella.
 
         :param ids: el id de la sucursal a eliminar
         """
-        sucursales = self.obtener_todas()
-        sucursales = [s for s in sucursales if s.id_sucursal != ids]
-        self.csv.overwrite([s.to_csv() for s in sucursales])
+
+        cen = self.buscar_por_id(ids)
+        if not cen:
+            return False
+        else:
+            sucursales = self.obtener_todas()
+            sucursales = [s for s in sucursales if s.id_sucursal != ids]
+            self.csv.overwrite([s.to_csv() for s in sucursales])
+            return True
 
     def editar_sucursal(self, suca):
         """Reemplaza la sucursal con el mismo id por la version actualizada.
@@ -56,6 +68,8 @@ class SucursalEdit:
                 break
 
         if not encontrada:
-            raise ValueError("sucursal no encontrada")
+            return False
 
         self.csv.overwrite([s.to_csv() for s in sucursales])
+        return True
+
