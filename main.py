@@ -2,6 +2,8 @@ from cliente import Cliente
 from clienteedit import ClienteEdit
 from sucursal import Sucursal
 from sucursaledit import SucursalEdit
+from insumo import Insumo
+from insumoedit import InsumoEdit
 
 
 def main():
@@ -19,6 +21,7 @@ def main():
             menus()
         elif option == 2:
             print("\nINSUMOS:")
+            menui()
         elif option == 3:
             print("\nCLIENTES:")
             menuc()
@@ -137,12 +140,11 @@ def menuc():
                 direccion_cliente,
             )
             confirmacion = ced.agregar_cliente(nuevo_cliente)
-            if(confirmacion):
+            if confirmacion:
                 print("INFO: Cliente agregado correctamente.")
                 print(nuevo_cliente)
             else:
                 print("Hubo un error al agregar cliente, segurx que no existe la ID??")
-
 
         elif option == 2:
             print("dame la id del cliente a buscar\n")
@@ -175,7 +177,7 @@ def menuc():
                 direccion_cliente,
             )
             encontrado = ced.editar_cliente(cliente_editado)
-            if (encontrado):
+            if encontrado:
                 print("\nINFO: Cliente editado correctamente. \n")
                 print(cliente_editado)
             else:
@@ -193,6 +195,101 @@ def menuc():
             else:
                 ced.eliminar_cliente(id_cliente_eliminar)
                 print("\nINFO: Cliente Eliminado")
+
+
+def menui():
+    option = 5
+    ied = InsumoEdit()
+
+    while option != 0:
+        print(
+            "SISTEMA MANEJADOR DE INSUMOS \n"
+            " 1. Agregar insumo\n"
+            " 2. Consultar insumo por ID\n"
+            " 3. Editar insumo\n"
+            " 4. Eliminar insumo\n"
+            " 0. Salir\n"
+            " Elige una opción:"
+        )
+
+        option = verifica_entrada()
+
+        if option == 1:
+            print("\nIngresa el ID del producto:")
+            id_producto = -1
+            while id_producto == -1:
+                id_producto = verifica_entrada()
+
+            nombre = input("Nombre del producto:\n ")
+            tipo = input("Tipo (Medicamento/Insumo):\n ")
+            precio = float(input("Precio:\n "))
+            stock = int(input("Stock:\n "))
+            fecha_caducidad = input("Fecha de caducidad (YYYY-MM-DD o vacío):\n ")
+            id_sucursal = int(input("ID de sucursal:\n "))
+
+            nuevo_insumo = Insumo(
+                id_producto, nombre, tipo, precio, stock, fecha_caducidad, id_sucursal
+            )
+
+            confirmacion = ied.agregar_insumo(nuevo_insumo)
+
+            if confirmacion:
+                print("INFO: Insumo agregado correctamente.")
+                print(nuevo_insumo)
+            else:
+                print("ERROR: Ya existe un insumo con esa ID.")
+
+        elif option == 2:
+            print("Ingresa el ID del insumo a buscar:")
+            id_producto = -1
+            while id_producto == -1:
+                id_producto = verifica_entrada()
+
+            insumo = ied.buscar_por_id(id_producto)
+
+            if insumo is None:
+                print("INFO: No se encontró el insumo.")
+            else:
+                print(insumo)
+
+        elif option == 3:
+            print("Insumo a editar")
+            print("Ingresa el ID del producto:")
+            id_producto = -1
+            while id_producto == -1:
+                id_producto = verifica_entrada()
+
+            nombre = input("Nuevo nombre:\n ")
+            tipo = input("Nuevo tipo (Medicamento/Insumo):\n ")
+            precio = float(input("Nuevo precio:\n "))
+            stock = int(input("Nuevo stock:\n "))
+            fecha_caducidad = input("Nueva fecha de caducidad:\n ")
+            id_sucursal = int(input("Nuevo ID de sucursal:\n "))
+
+            insumo_editado = Insumo(
+                id_producto, nombre, tipo, precio, stock, fecha_caducidad, id_sucursal
+            )
+
+            encontrado = ied.editar_insumo(insumo_editado)
+
+            if encontrado:
+                print("INFO: Insumo editado correctamente.")
+                print(insumo_editado)
+            else:
+                print("ERROR: Insumo no encontrado.")
+
+        elif option == 4:
+            print("Ingresa el ID del insumo a eliminar:")
+            id_producto = -1
+            while id_producto == -1:
+                id_producto = verifica_entrada()
+
+            eliminado = ied.eliminar_insumo(id_producto)
+
+            if eliminado:
+                print("INFO: Insumo eliminado correctamente.")
+            else:
+                print("ERROR: Insumo no encontrado.")
 
 
 def verifica_entrada():
