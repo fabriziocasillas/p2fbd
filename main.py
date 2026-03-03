@@ -222,29 +222,40 @@ def menui():
         option = verifica_entrada()
 
         if option == 1:
-            print("\nIngresa el ID del producto:")
-            id_producto = -1
-            while id_producto == -1:
-                id_producto = verifica_entrada()
+            try:
+                print("\nIngresa el ID del producto:")
+                id_producto = -1
+                while id_producto == -1:
+                    id_producto = verifica_entrada()
 
-            nombre = input("Nombre del producto:\n ")
-            tipo = input("Tipo (Medicamento/Insumo):\n ")
-            precio = float(input("Precio:\n "))
-            stock = int(input("Stock:\n "))
-            fecha_caducidad = input("Fecha de caducidad (YYYY-MM-DD o vacío):\n ")
-            id_sucursal = int(input("ID de sucursal:\n "))
+                nombre = input("Nombre del producto:\n ")
+                tipo = input("Tipo (Medicamento/Insumo):\n ")
 
-            nuevo_insumo = Insumo(
-                id_producto, nombre, tipo, precio, stock, fecha_caducidad, id_sucursal
-            )
+                precio = float(input("Precio:\n "))
+                stock = int(input("Stock:\n "))
+                fecha_caducidad = input("Fecha de caducidad (YYYY-MM-DD o vacío):\n ")
+                id_sucursal = int(input("ID de sucursal:\n "))
 
-            confirmacion = ied.agregar_insumo(nuevo_insumo)
+                nuevo_insumo = Insumo(
+                    id_producto,
+                    nombre,
+                    tipo,
+                    precio,
+                    stock,
+                    fecha_caducidad,
+                    id_sucursal
+                )
 
-            if confirmacion:
-                print("INFO: Insumo agregado correctamente.")
-                print(nuevo_insumo)
-            else:
-                print("ERROR: Ya existe un insumo con esa ID.")
+                confirmacion = ied.agregar_insumo(nuevo_insumo)
+
+                if confirmacion:
+                    print("INFO: Insumo agregado correctamente.")
+                    print(nuevo_insumo)
+                else:
+                    print("ERROR: Ya existe un insumo con esa ID.")
+
+            except ValueError as e:
+                print("ERROR:", e)
 
         elif option == 2:
             print("Ingresa el ID del insumo a buscar:")
