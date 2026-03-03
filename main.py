@@ -136,9 +136,13 @@ def menuc():
                 correo_cliente,
                 direccion_cliente,
             )
-            ced.agregar_cliente(nuevo_cliente)
-            print("INFO: Cliente agregado correctamente.")
-            print(nuevo_cliente)
+            confirmacion = ced.agregar_cliente(nuevo_cliente)
+            if(confirmacion):
+                print("INFO: Cliente agregado correctamente.")
+                print(nuevo_cliente)
+            else:
+                print("Hubo un error al agregar cliente, segurx que no existe la ID??")
+
 
         elif option == 2:
             print("dame la id del cliente a buscar\n")
@@ -146,7 +150,7 @@ def menuc():
             while id_cliente == -1:
                 id_cliente = verifica_entrada()
             cliente = ced.buscar_por_id(id_cliente)
-            if cliente == []:
+            if cliente == None:
                 print("\nINFO: No se encontro el cliente con id: " + id_cliente)
             else:
                 print(cliente)
@@ -170,9 +174,12 @@ def menuc():
                 correo_cliente,
                 direccion_cliente,
             )
-            ced.editar_cliente(cliente_editado)
-            print("\nINFO: Cliente editado correctamente. \n")
-            print(cliente_editado)
+            encontrado = ced.editar_cliente(cliente_editado)
+            if (encontrado):
+                print("\nINFO: Cliente editado correctamente. \n")
+                print(cliente_editado)
+            else:
+                print("Cliente no encontrado, seguro que esa es la ID?")
         elif option == 4:
             print("\nIngresa la id del cliente: ")
             id_cliente_eliminar = -1

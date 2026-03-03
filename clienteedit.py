@@ -6,14 +6,23 @@ class ClienteEdit:
         self.csv = CSVManager("clientes.csv")
 
     def agregar_cliente(self, cliente):
-        """ pues recibimos un cliente, utilizamos 
-        el metodo nativo para convertirlo a a lgo escribible
-        en csv y lo escribimos
+        """
+            pues recibimos un cliente, utilizamos 
+            el metodo nativo para convertirlo a a lgo escribible
+            en csv y lo escribimos, aunque primero checa antes si ya existe el cliente con la ID
 
         :param cliente: el cliente a escribir
+        :return: true si se agrego, false si no
         """
-        self.csv.write_row(cliente.to_csv())
+        existente = self.buscar_por_id(cliente.id_cliente)
 
+        if existente is not None:
+            return False
+
+        self.csv.write_row(cliente.to_csv_row())
+        return True
+
+        
     def obtener_todos(self):
         """Utilizamos la funcion del csv manager para
         leer todos los clientes
@@ -34,7 +43,7 @@ class ClienteEdit:
         for cliente in self.obtener_todos():
             if cliente.id_cliente == idc:
                 return cliente
-        return []
+        return None
 
     def eliminar_cliente(self, idc):
         """sobreescribimos todo el csv. si la id de un cliente es la que queremos 
@@ -63,6 +72,6 @@ class ClienteEdit:
                 break
 
         if not encontrado:
-            raise ValueError("cliente no encontrado")
-
+            return False
         self.csv.overwrite([c.to_csv() for c in clientes])
+        return True
