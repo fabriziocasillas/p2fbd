@@ -40,8 +40,11 @@ class InsumoEdit:
 
         if encontrado:
             self.csv.overwrite(nuevas_filas)
+            return True
+        else:
+            return False
 
-        return encontrado
+
 
     def eliminar_insumo(self, id_producto: int):
         filas = self.csv.read_all()
