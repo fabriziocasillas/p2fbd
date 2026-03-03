@@ -19,7 +19,7 @@ class ClienteEdit:
         if existente is not None:
             return False
 
-        self.csv.write_row(cliente.to_csv_row())
+        self.csv.write_row(cliente.to_csv())
         return True
 
         
