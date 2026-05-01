@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module csvmanager</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title">csvmanager</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/home/north_bird/Documents/2026A/Fundamentos%20de%20Bases%20de%20Datos/Practicas/practica_02/p2fbd/csvmanager.py">/home/north_bird/Documents/2026A/Fundamentos de Bases de Datos/Practicas/practica_02/p2fbd/csvmanager.py</a></td></tr></table>
+    <p></p>
+<p>
+<table class="section">
+<tr class="decor pkg-content-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Modules</strong></td></tr>
+    
+<tr><td class="decor pkg-content-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><table><tr><td class="multicolumn"><a href="csv.html">csv</a><br>
+</td><td class="multicolumn"><a href="os.html">os</a><br>
+</td><td class="multicolumn"></td><td class="multicolumn"></td></tr></table></td></tr></table><p>
+<table class="section">
+<tr class="decor index-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Classes</strong></td></tr>
+    
+<tr><td class="decor index-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl>
+<dt class="heading-text"><a href="builtins.html#object">builtins.object</a>
+</dt><dd>
+<dl>
+<dt class="heading-text"><a href="csvmanager.html#CSVManager">CSVManager</a>
+</dt></dl>
+</dd>
+</dl>
+ <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="CSVManager">class <strong>CSVManager</strong></a>(<a href="builtins.html#object">builtins.object</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#CSVManager">CSVManager</a>(filename)<br>
+&nbsp;<br>
+Para&nbsp;estandarizar&nbsp;la&nbsp;implementacion&nbsp;para&nbsp;con&nbsp;los&nbsp;archivos&nbsp;csv&nbsp;un&nbsp;unico&nbsp;readerwriter&nbsp;que&nbsp;no<br>
+conoce&nbsp;ni&nbsp;a&nbsp;las&nbsp;clases&nbsp;a&nbsp;ingresar&nbsp;ni&nbsp;a&nbsp;los&nbsp;que&nbsp;las&nbsp;manejoan<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn">Methods defined here:<br>
+<dl><dt><a name="CSVManager-__init__"><strong>__init__</strong></a>(self, filename)</dt><dd><span class="code">para&nbsp;que&nbsp;se&nbsp;pueda&nbsp;escribir&nbsp;en&nbsp;un&nbsp;csv&nbsp;necesitamos&nbsp;el&nbsp;nombre&nbsp;del&nbsp;csv,&nbsp;aqui&nbsp;se&nbsp;inicializa<br>
+&nbsp;<br>
+:param&nbsp;fliename:&nbsp;el&nbsp;nombre&nbsp;del&nbsp;csv</span></dd></dl>
+
+<dl><dt><a name="CSVManager-overwrite"><strong>overwrite</strong></a>(self, rows)</dt><dd><span class="code">se&nbsp;reescribe&nbsp;el&nbsp;archivo&nbsp;con&nbsp;las&nbsp;filas&nbsp;que&nbsp;le&nbsp;demos,&nbsp;se&nbsp;abre&nbsp;en&nbsp;modo&nbsp;escritura&nbsp;el&nbsp;archivo<br>
+&nbsp;<br>
+:param&nbsp;rows:&nbsp;filas&nbsp;que&nbsp;se&nbsp;escribirán&nbsp;en&nbsp;el&nbsp;CSV</span></dd></dl>
+
+<dl><dt><a name="CSVManager-read_all"><strong>read_all</strong></a>(self)</dt><dd><span class="code">Lee&nbsp;un&nbsp;csv,&nbsp;si&nbsp;no&nbsp;existe,&nbsp;devuelve&nbsp;lista&nbsp;vacia<br>
+,&nbsp;si&nbsp;si,&nbsp;cada&nbsp;elemento&nbsp;de&nbsp;la&nbsp;lista&nbsp;es&nbsp;un&nbsp;fila&nbsp;del&nbsp;csv<br>
+:return:&nbsp;lista&nbsp;de&nbsp;filas&nbsp;del&nbsp;&nbsp;CSV</span></dd></dl>
+
+<dl><dt><a name="CSVManager-write_row"><strong>write_row</strong></a>(self, row)</dt><dd><span class="code">_con&nbsp;este&nbsp;metodo&nbsp;escribimos&nbsp;una&nbsp;nueva&nbsp;fila&nbsp;en&nbsp;el&nbsp;archivo<br>
+&nbsp;<br>
+:param&nbsp;row:&nbsp;una&nbsp;lista&nbsp;con&nbsp;lo&nbsp;que&nbsp;sea&nbsp;que&nbsp;escribamos</span></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table></td></tr></table>
+</body></html>

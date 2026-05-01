@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Python: module cliente</title>
+</head><body>
+
+<table class="heading">
+<tr class="heading-text decor">
+<td class="title">&nbsp;<br><strong class="title">cliente</strong></td>
+<td class="extra"><a href=".">index</a><br><a href="file:/home/north_bird/Documents/2026A/Fundamentos%20de%20Bases%20de%20Datos/Practicas/practica_02/p2fbd/cliente.py">/home/north_bird/Documents/2026A/Fundamentos de Bases de Datos/Practicas/practica_02/p2fbd/cliente.py</a></td></tr></table>
+    <p></p>
+<p>
+<table class="section">
+<tr class="decor index-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><strong class="bigsection">Classes</strong></td></tr>
+    
+<tr><td class="decor index-decor"><span class="code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td><td>&nbsp;</td>
+<td class="singlecolumn"><dl>
+<dt class="heading-text"><a href="builtins.html#object">builtins.object</a>
+</dt><dd>
+<dl>
+<dt class="heading-text"><a href="cliente.html#Cliente">Cliente</a>
+</dt></dl>
+</dd>
+</dl>
+ <p>
+<table class="section">
+<tr class="decor title-decor heading-text">
+<td class="section-title" colspan=3>&nbsp;<br><a name="Cliente">class <strong>Cliente</strong></a>(<a href="builtins.html#object">builtins.object</a>)</td></tr>
+    
+<tr><td class="decor title-decor" rowspan=2><span class="code">&nbsp;&nbsp;&nbsp;</span></td>
+<td class="decor title-decor" colspan=2><span class="code"><a href="#Cliente">Cliente</a>(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;id_cliente:&nbsp;int,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;nombre_completo:&nbsp;str,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;curp:&nbsp;str,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;telefono:&nbsp;str,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;correo:&nbsp;str,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;direccion:&nbsp;str<br>
+)<br>
+&nbsp;<br>
+<br>&nbsp;</span></td></tr>
+<tr><td>&nbsp;</td>
+<td class="singlecolumn">Methods defined here:<br>
+<dl><dt><a name="Cliente-__init__"><strong>__init__</strong></a>(
+    self,
+    id_cliente: int,
+    nombre_completo: str,
+    curp: str,
+    telefono: str,
+    correo: str,
+    direccion: str
+)</dt><dd><span class="code">Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</span></dd></dl>
+
+<dl><dt><a name="Cliente-__str__"><strong>__str__</strong></a>(self)</dt><dd><span class="code">Return&nbsp;str(self).</span></dd></dl>
+
+<dl><dt><a name="Cliente-to_csv"><strong>to_csv</strong></a>(self)</dt></dl>
+
+<hr>
+Class methods defined here:<br>
+<dl><dt><a name="Cliente-from_csv_row"><strong>from_csv_row</strong></a>(row)</dt><dd><span class="code">basicamente&nbsp;necesita&nbsp;el&nbsp;classmethod,&nbsp;por&nbsp;que&nbsp;si&nbsp;no&nbsp;python&nbsp;espera&nbsp;como&nbsp;un&nbsp;self,&nbsp;pero&nbsp;si&nbsp;no&nbsp;existes&nbsp;<br>
+al&nbsp;momento&nbsp;de&nbsp;leerte&nbsp;como&nbsp;vas&nbsp;a&nbsp;pasarte&nbsp;a&nbsp;ti&nbsp;mismo,&nbsp;entonces&nbsp;pues&nbsp;el&nbsp;classmetho&nbsp;permite&nbsp;evitar&nbsp;eso,&nbsp;y&nbsp;pues&nbsp;nada<br>
+esto&nbsp;crea&nbsp;un&nbsp;objeto&nbsp;de&nbsp;tipo&nbsp;cliente&nbsp;que&nbsp;toma&nbsp;<br>
+&nbsp;<br>
+:param&nbsp;row:&nbsp;lista&nbsp;con&nbsp;los&nbsp;atributos&nbsp;del&nbsp;cliente&nbsp;que&nbsp;viene&nbsp;del&nbsp;csv<br>
+&nbsp;<br>
+:return:&nbsp;una&nbsp;ijnstancia&nbsp;del&nbsp;cliente</span></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><span class="code">dictionary&nbsp;for&nbsp;instance&nbsp;variables</span></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><span class="code">list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object</span></dd>
+</dl>
+</td></tr></table></td></tr></table>
+</body></html>
