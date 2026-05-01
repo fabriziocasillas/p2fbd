@@ -1,0 +1,12 @@
+﻿services:
+  db:
+    image: postgres:15
+    container_name: practica05_db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: practica05
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - ./DDL.sql:/docker-entrypoint-initdb.d/DDL.sql
