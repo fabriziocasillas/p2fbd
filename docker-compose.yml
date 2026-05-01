@@ -9,4 +9,4 @@
       POSTGRES_DB: practica05
       POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
-      - ./DDL.sql:/docker-entrypoint-initdb.d/DDL.sql
+      - ./init:/docker-entrypoint-initdb.d

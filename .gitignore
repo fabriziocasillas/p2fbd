@@ -2,3 +2,7 @@
 *.pdf:Zone.Identifier
 __pycache__/
 *.pyc
+/datasets/
+.~lock.cliente_apellido.csv#
+.~lock.personas_proveedoras.csv#
+
