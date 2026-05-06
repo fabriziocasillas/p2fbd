@@ -773,6 +773,8 @@ ALTER TABLE Personal ADD CONSTRAINT personal_d8
 CHECK(num_int IS NULL OR num_int <> '');
 ALTER TABLE Personal ADD CONSTRAINT personal_d9 
 CHECK(salario >= 0);
+ALTER TABLE Personal ADD CONSTRAINT personal_d10
+CHECK(horario IN ('matutino', 'vespertino', 'nocturno'));
 
 COMMENT ON CONSTRAINT personal_d1 ON Personal IS 'Valida que el nombre no sea vacio';
 COMMENT ON CONSTRAINT personal_d2 ON Personal IS 'Valida que el apellido paterno no sea vacio';
@@ -985,10 +987,13 @@ ALTER TABLE Ticket ADD CONSTRAINT ticket_d1
 CHECK(fecha IS NOT NULL);
 ALTER TABLE Ticket ADD CONSTRAINT ticket_d2
 CHECK(hora IS NOT NULL);
-ALTER TABLE Ticket ALTER COLUMN id_cliente SET NOT NULL;
 ALTER TABLE Ticket ALTER COLUMN id_sucursal SET NOT NULL;
 ALTER TABLE Ticket ALTER COLUMN fecha SET NOT NULL;
 ALTER TABLE Ticket ALTER COLUMN hora SET NOT NULL;
+ALTER TABLE Ticket ALTER COLUMN id_cliente SET NOT NULL;
+ALTER TABLE Ticket ADD CONSTRAINT ticket_cliente_check
+CHECK(id_cliente > 0);
+
 
 COMMENT ON CONSTRAINT ticket_d1 ON Ticket IS 'Valida que la fecha no sea nula';
 COMMENT ON CONSTRAINT ticket_d2 ON Ticket IS 'Valida que la hora no sea nula';
@@ -1047,12 +1052,15 @@ CHECK(precio >= 0);
 
 ALTER TABLE Consulta ALTER COLUMN id_ticket SET NOT NULL;
 ALTER TABLE Consulta ALTER COLUMN cedula_profesional_medico SET NOT NULL;
-ALTER TABLE Consulta ALTER COLUMN cedula_profesional_enfermera SET NOT NULL;
 ALTER TABLE Consulta ALTER COLUMN fecha SET NOT NULL;
 ALTER TABLE Consulta ALTER COLUMN hora SET NOT NULL;
+ALTER TABLE Consulta ALTER COLUMN precio SET NOT NULL;
 
 ALTER TABLE Consulta ADD CONSTRAINT cm_d2
 CHECK(diagnostico IS NULL OR diagnostico <> '');
+
+ALTER TABLE Consulta ADD CONSTRAINT cm_d3
+CHECK(cedula_profesional_medico <> '');
 
 COMMENT ON CONSTRAINT cm_d1 ON Consulta IS 'Valida que el precio sea mayor o igual a 0';
 COMMENT ON CONSTRAINT cm_d2 ON Consulta IS 'Valida que el diagnostico no sea vacio si existe';
@@ -1073,8 +1081,6 @@ COMMENT ON CONSTRAINT cm_ticket_fkey ON Consulta IS
 'Llave foranea hacia Ticket. Si el ticket se elimina o su ID se actualiza, la consulta se elimina o actualiza automaticamente (CASCADE)';
 
 -- FK a Medico 
-ALTER TABLE Consulta ALTER COLUMN cedula_profesional_medico DROP NOT NULL;
-
 ALTER TABLE Consulta ADD CONSTRAINT cm_medico_fkey
 FOREIGN KEY (cedula_profesional_medico)
 REFERENCES Medico(cedula_profesional)
@@ -1199,6 +1205,12 @@ COMMENT ON COLUMN IncluirMedicamento.id_ticket IS 'Identificador del ticket';
 COMMENT ON COLUMN IncluirMedicamento.id_producto IS 'Identificador del medicamento';
 COMMENT ON COLUMN IncluirMedicamento.cantidad IS 'Cantidad del medicamento incluido en el ticket';
 
+--Restricciones IM
+ALTER TABLE IncluirMedicamento ALTER COLUMN id_producto SET NOT NULL;
+ALTER TABLE IncluirMedicamento ALTER COLUMN id_ticket SET NOT NULL;
+ALTER TABLE IncluirMedicamento ADD CONSTRAINT incluir_medicamento_ids_check
+CHECK(id_producto > 0 AND id_ticket > 0);
+
 --FKs IM
 ALTER TABLE IncluirMedicamento ADD CONSTRAINT inc_med_ticket_fkey
 FOREIGN KEY (id_ticket) REFERENCES Ticket(id_ticket)
@@ -1233,6 +1245,12 @@ COMMENT ON TABLE IncluirInsumo IS 'Tabla que relaciona tickets con insumos inclu
 COMMENT ON COLUMN IncluirInsumo.id_ticket IS 'Identificador del ticket';
 COMMENT ON COLUMN IncluirInsumo.id_producto IS 'Identificador del insumo';
 COMMENT ON COLUMN IncluirInsumo.cantidad IS 'Cantidad del insumo incluido en el ticket';
+
+--Restricciones II
+ALTER TABLE IncluirInsumo ALTER COLUMN id_producto SET NOT NULL;
+ALTER TABLE IncluirInsumo ALTER COLUMN id_ticket SET NOT NULL;
+ALTER TABLE IncluirInsumo ADD CONSTRAINT incluir_insumo_ids_check
+CHECK(id_producto > 0 AND id_ticket > 0);
 
 --FKs II
 ALTER TABLE IncluirInsumo ADD CONSTRAINT inc_insumo_ticket_fkey
@@ -1274,6 +1292,20 @@ COMMENT ON COLUMN ProveerMedicamento.id_sucursal IS 'Identificador de la sucursa
 COMMENT ON COLUMN ProveerMedicamento.cantidad IS 'Cantidad suministrada';
 COMMENT ON COLUMN ProveerMedicamento.fecha_recibimiento IS 'La fecha en la que se recibió el medicamento';
 
+--Restricciones PM
+ALTER TABLE ProveerMedicamento ALTER COLUMN numero_proveedor SET NOT NULL;
+ALTER TABLE ProveerMedicamento ALTER COLUMN id_producto SET NOT NULL;
+ALTER TABLE proveermedicamento ALTER COLUMN id_sucursal SET NOT NULL;
+ALTER TABLE ProveerMedicamento ALTER COLUMN cantidad SET NOT NULL;
+ALTER TABLE ProveerMedicamento ALTER COLUMN fecha_recibimiento SET NOT NULL;
+ALTER TABLE ProveerMedicamento ADD CONSTRAINT proveer_medicamento_check
+CHECK(
+    id_producto > 0 AND 
+    id_sucursal > 0 AND 
+    numero_proveedor > 0 AND
+    fecha_recibimiento <= CURRENT_DATE
+);
+
 --FKs PM
 ALTER TABLE ProveerMedicamento ADD CONSTRAINT prov_med_proveedor_fkey
 FOREIGN KEY (numero_proveedor) REFERENCES Proveedor(numero_proveedor)
@@ -1306,6 +1338,47 @@ CHECK(cantidad >= 0);
 
 COMMENT ON CONSTRAINT prov_med_d1 ON ProveerMedicamento IS 'Valida que la cantidad sea mayor o igual a 0';
 
+-- TODO: Inicia
+--VenderMedicamento
+CREATE TABLE VenderMedicamento(
+    id_producto INT,
+    id_sucursal INT
+);
+
+COMMENT ON TABLE VenderMedicamento IS 'Tabla que relaciona las ventas con medicamentos vendidos por sucursales';
+COMMENT ON COLUMN VenderMedicamento.id_producto IS 'Identificador del medicamento vendido';
+COMMENT ON COLUMN VenderMedicamento.id_sucursal IS 'Identificador de la sucursal que vende el suministro';
+
+
+--Restricciones VM
+ALTER TABLE VenderMedicamento ALTER COLUMN id_producto SET NOT NULL;
+ALTER TABLE VenderMedicamento ALTER COLUMN id_sucursal SET NOT NULL;
+ALTER TABLE VenderMedicamento ADD CONSTRAINT vender_medicamento_check
+CHECK(
+    id_producto > 0 AND 
+    id_sucursal > 0
+);
+
+--FKs VM
+ALTER TABLE VenderMedicamento ADD CONSTRAINT vender_med_producto_fkey
+FOREIGN KEY (id_producto) REFERENCES Medicamento(id_producto)
+ON DELETE RESTRICT
+ON UPDATE RESTRICT;
+
+COMMENT ON CONSTRAINT vender_med_producto_fkey ON VenderMedicamento IS 
+'Llave foranea hacia Medicamento. No se permite eliminar o actualizar un medicamento con historial de suministros (RESTRICT)';
+
+
+ALTER TABLE VenderMedicamento ADD CONSTRAINT vender_med_sucursal_fkey
+FOREIGN KEY (id_sucursal) REFERENCES Sucursal(id_sucursal)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+COMMENT ON CONSTRAINT vender_med_sucursal_fkey ON VenderMedicamento IS 
+'Llave foranea hacia Sucursal. Si la sucursal se elimina o su ID se actualiza, los suministros asociados se eliminan o actualizan (CASCADE)';
+
+-- TODO: TERMINA
+
 --ProveerInsumo
 CREATE TABLE ProveerInsumo(
     numero_proveedor INT,
@@ -1321,6 +1394,19 @@ COMMENT ON COLUMN ProveerInsumo.id_producto IS 'Identificador del insumo suminis
 COMMENT ON COLUMN ProveerInsumo.id_sucursal IS 'Identificador de la sucursal que recibe el suministro';
 COMMENT ON COLUMN ProveerInsumo.cantidad IS 'Cantidad suministrada';
 COMMENT ON COLUMN ProveerInsumo.fecha_recibimiento IS 'Fecha en la que se recibió el insumo';
+
+--Restricciones PI
+ALTER TABLE ProveerInsumo ALTER COLUMN fecha_recibimiento SET NOT NULL;
+ALTER TABLE ProveerInsumo ALTER COLUMN id_producto SET NOT NULL;
+ALTER TABLE ProveerInsumo ALTER COLUMN id_sucursal SET NOT NULL;
+ALTER TABLE ProveerInsumo ALTER COLUMN numero_proveedor SET NOT NULL;
+ALTER TABLE ProveerInsumo ADD CONSTRAINT proveer_insumo_check
+CHECK(
+    id_producto > 0 AND 
+    id_sucursal > 0 AND 
+    numero_proveedor > 0 AND
+    fecha_recibimiento <= CURRENT_DATE
+);
 
 --FKs PI
 ALTER TABLE ProveerInsumo ADD CONSTRAINT prov_insumo_proveedor_fkey
@@ -1355,6 +1441,46 @@ CHECK(cantidad >= 0);
 
 COMMENT ON CONSTRAINT prov_insumo_d1 ON ProveerInsumo IS 'Valida que la cantidad sea mayor o igual a 0';
 
+
+--VenderInsumo
+CREATE TABLE VenderInsumo(
+    id_producto INT,
+    id_sucursal INT
+);
+
+COMMENT ON TABLE VenderInsumo IS 'Tabla que relaciona la venta entre producto y sucursal';
+COMMENT ON COLUMN VenderInsumo.id_producto IS 'Identificador del insumo vendido';
+COMMENT ON COLUMN VenderInsumo.id_sucursal IS 'Identificador de la sucursal vende el insumo';
+
+
+--Restricciones VI
+ALTER TABLE VenderInsumo ALTER COLUMN id_producto SET NOT NULL;
+ALTER TABLE VenderInsumo ALTER COLUMN id_sucursal SET NOT NULL;
+ALTER TABLE VenderInsumo ADD CONSTRAINT vender_insumo_check
+CHECK(
+    id_producto > 0 AND 
+    id_sucursal > 0
+);
+
+--FKs VI
+ALTER TABLE VenderInsumo ADD CONSTRAINT vender_insumo_producto_fkey
+FOREIGN KEY (id_producto) REFERENCES Insumo(id_producto)
+ON DELETE RESTRICT
+ON UPDATE RESTRICT;
+
+COMMENT ON CONSTRAINT vender_insumo_producto_fkey ON VenderInsumo IS 
+'Llave foranea hacia Insumo. No se permite eliminar o actualizar un insumo con historial de suministros (RESTRICT)';
+
+
+ALTER TABLE VenderInsumo ADD CONSTRAINT vender_insumo_sucursal_fkey
+FOREIGN KEY (id_sucursal) REFERENCES Sucursal(id_sucursal)
+ON DELETE CASCADE
+ON UPDATE CASCADE;
+
+COMMENT ON CONSTRAINT vender_insumo_sucursal_fkey ON VenderInsumo IS 
+'Llave foranea hacia Sucursal. Si la sucursal se elimina o su ID se actualiza, los suministros asociados se eliminan o actualizan (CASCADE)';
+
+
 --Preparar
 CREATE TABLE Preparar(
     cedula_profesional VARCHAR(20),
@@ -1366,6 +1492,13 @@ COMMENT ON TABLE Preparar IS 'Tabla que relaciona farmaceuticos con medicamentos
 COMMENT ON COLUMN Preparar.cedula_profesional IS 'Cedula profesional del farmaceutico';
 COMMENT ON COLUMN Preparar.id_producto IS 'Identificador del medicamento preparado';
 COMMENT ON COLUMN Preparar.cantidad IS 'Cantidad preparada';
+
+--Restricciones Preparar
+ALTER TABLE Preparar ALTER COLUMN cedula_profesional SET NOT NULL;
+ALTER TABLE Preparar ALTER COLUMN id_producto SET NOT NULL;
+ALTER TABLE Preparar ADD CONSTRAINT preparar_check
+CHECK(cedula_profesional ~ '^[0-9]+$' AND id_producto > 0);
+ALTER TABLE Preparar ALTER COLUMN cantidad SET NOT NULL;
 
 --FK a Farmaceutico
 ALTER TABLE Preparar ADD CONSTRAINT preparar_farmaceutico_fkey
