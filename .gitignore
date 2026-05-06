@@ -5,4 +5,7 @@ __pycache__/
 /datasets/
 .~lock.cliente_apellido.csv#
 .~lock.personas_proveedoras.csv#
-
+.env
+.venv
+__pycache__/
+*.py[cod]
