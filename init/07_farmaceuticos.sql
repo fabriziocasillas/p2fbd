@@ -147,3 +147,4 @@ INSERT INTO Farmaceutico (cedula_profesional) VALUES (100147);
 INSERT INTO Farmaceutico (cedula_profesional) VALUES (100148);
 INSERT INTO Farmaceutico (cedula_profesional) VALUES (100149);
 INSERT INTO Farmaceutico (cedula_profesional) VALUES (100150);
+INSERT INTO Farmaceutico (cedula_profesional) VALUES (100499);
