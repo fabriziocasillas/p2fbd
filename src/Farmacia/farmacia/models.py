@@ -38,8 +38,8 @@ class Cliente(models.Model):
     contrasenia = models.CharField(max_length=50)
     numero_tarjeta = models.CharField(max_length=20)
     fecha_vencimiento = models.DateField()
-    esClienteOnline = models.BooleanField()
-    esClienteFisico = models.BooleanField()
+    esclienteonline = models.BooleanField()
+    esclientefisico = models.BooleanField()
 
     class Meta:
         db_table = 'cliente'
