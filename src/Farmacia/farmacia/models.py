@@ -42,7 +42,7 @@ class Cliente(models.Model):
     esClienteFisico = models.BooleanField()
 
     class Meta:
-        db_table = 'Cliente'
+        db_table = 'cliente'
         ordering = ['nombre']
 
     def __str__(self):
@@ -101,7 +101,7 @@ class Medicamento(models.Model):
     preparacion_dermatologica = models.TextField()
 
     class Meta:
-        db_table = 'Medicamento'
+        db_table = 'medicamento'
         ordering = ['nombre']
 
     def __str__(self):
