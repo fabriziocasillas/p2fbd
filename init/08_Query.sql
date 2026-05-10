@@ -33,7 +33,7 @@ FROM (
     FROM farmaceutico f
     JOIN personal p 
       ON f.cedula_profesional = p.cedula_profesional
-) t
+) 
 WHERE EXTRACT(MONTH FROM fecha_nacimiento_calc) = 11; --nacida en noviembre
 
 -- iv. Medicamentos cuya forma física sea gel y vía de administración sea oral.
