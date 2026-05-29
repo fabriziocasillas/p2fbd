@@ -7,42 +7,7 @@
 -- Funciones
 
 -- ============================================================
--- FUNCIÓN i: edad_cliente
--- Recibe el id_cliente y regresa su edad en años.
--- Se calcula como la diferencia entre la fecha actual y
--- fecha_nacimiento usando AGE(), extrayendo el campo YEAR.
--- ============================================================
-
-CREATE OR REPLACE FUNCTION edad_cliente(p_id_cliente IN INT)
-RETURNS INT
-AS $$
-DECLARE
-    v_fecha_nac DATE;
-    v_edad      INT;
-BEGIN
-    SELECT fecha_nacimiento
-    INTO v_fecha_nac
-    FROM Cliente
-    WHERE id_cliente = p_id_cliente;
-
-    IF v_fecha_nac IS NULL THEN
-        RAISE EXCEPTION 'Cliente con id % no encontrado.', p_id_cliente;
-    END IF;
-
-    v_edad := EXTRACT(YEAR FROM AGE(CURRENT_DATE, v_fecha_nac));
-
-    RETURN v_edad;
-END;
-$$
-LANGUAGE plpgsql;
-
--- Ejemplo de uso:
--- SELECT edad_cliente(1);
--- SELECT nombre, apellido_paterno, edad_cliente(id_cliente) AS edad FROM Cliente ORDER BY nombre LIMIT 10;
-
-
--- ============================================================
--- FUNCIÓN ii: ganancias_sucursal_anio
+-- FUNCIÓN i: ganancias_sucursal_anio
 -- Recibe el id de una sucursal y calcula las ganancias totales
 -- durante el año 2026.
 -- Las ganancias = suma de (precio_publico * cantidad) de cada
@@ -95,108 +60,63 @@ LANGUAGE plpgsql;
 -- SELECT ganancias_sucursal_anio(1);
 -- SELECT id_sucursal, nombre, ganancias_sucursal_anio(id_sucursal) AS ganancias_2026 FROM Sucursal ORDER BY ganancias_2026 DESC LIMIT 10;
 
-
--- Stored Procedures
-
 -- ============================================================
--- SP i: registrar_farmaceutico
--- Registra un farmacéutico nuevo insertando primero en la tabla
--- Personal (supertipo) y luego en Farmaceutico (subtipo).
--- Valida que los campos de nombre no contengan números ni
--- símbolos usando expresiones regulares.
--- Parámetros de entrada:
---   p_cedula       : cédula profesional (solo dígitos)
---   p_id_sucursal  : sucursal donde labora
---   p_nombre       : nombre (solo letras y espacios)
---   p_ap_paterno   : apellido paterno (solo letras y espacios)
---   p_ap_materno   : apellido materno (solo letras y espacios, puede ser NULL)
---   p_rfc          : RFC del empleado
---   p_horario      : 'matutino', 'vespertino' o 'nocturno'
---   p_salario      : salario numérico
---   p_calle        : calle del domicilio
---   p_num_ext      : número exterior (puede ser NULL)
---   p_num_int      : número interior (puede ser NULL)
---   p_colonia      : colonia del domicilio
+-- FUNCIÓN ii: total_medicamentos_cliente
+-- Recibe el id_cliente y devuelve la cantidad total de
+-- medicamentos comprados por ese cliente en todos sus tickets.
+--
+-- Suma las cantidades registradas en IncluirMedicamento
+-- asociadas a tickets del cliente.
 -- ============================================================
 
-CREATE OR REPLACE PROCEDURE registrar_farmaceutico(
-    p_cedula      IN VARCHAR,
-    p_id_sucursal IN INT,
-    p_nombre      IN VARCHAR,
-    p_ap_paterno  IN VARCHAR,
-    p_ap_materno  IN VARCHAR,
-    p_rfc         IN VARCHAR,
-    p_horario     IN VARCHAR,
-    p_salario     IN NUMERIC,
-    p_calle       IN VARCHAR,
-    p_num_ext     IN VARCHAR,
-    p_num_int     IN VARCHAR,
-    p_colonia     IN VARCHAR
-)
+CREATE OR REPLACE FUNCTION total_medicamentos_cliente(p_id_cliente IN INT)
+RETURNS INT
 AS $$
 DECLARE
-    -- Regex: solo letras (incluyendo acentos y ñ) y espacios
-    v_regex_nombre CONSTANT TEXT := '^[A-Za-záéíóúÁÉÍÓÚñÑüÜ ]+$';
+    v_total  INT := 0;
+    v_existe INT;
 BEGIN
-    -- Validar que nombre no tenga números ni símbolos
-    IF p_nombre !~ v_regex_nombre THEN
-        RAISE EXCEPTION 'El nombre "%" contiene caracteres no permitidos (solo letras y espacios).', p_nombre;
+    -- Verificar que el cliente exista
+    SELECT COUNT(*)
+    INTO v_existe
+    FROM Cliente
+    WHERE id_cliente = p_id_cliente;
+
+    IF v_existe = 0 THEN
+        RAISE EXCEPTION 'Cliente con id % no encontrado.', p_id_cliente;
     END IF;
 
-    -- Validar apellido paterno
-    IF p_ap_paterno !~ v_regex_nombre THEN
-        RAISE EXCEPTION 'El apellido paterno "%" contiene caracteres no permitidos.', p_ap_paterno;
-    END IF;
+    -- Calcular total de medicamentos comprados
+    SELECT COALESCE(SUM(im.cantidad), 0)
+    INTO v_total
+    FROM Ticket t
+    JOIN IncluirMedicamento im ON t.id_ticket = im.id_ticket
+    WHERE t.id_cliente = p_id_cliente;
 
-    -- Validar apellido materno solo si no es NULL
-    IF p_ap_materno IS NOT NULL AND p_ap_materno !~ v_regex_nombre THEN
-        RAISE EXCEPTION 'El apellido materno "%" contiene caracteres no permitidos.', p_ap_materno;
-    END IF;
-
-    -- Verificar que la cédula no esté ya registrada
-    IF EXISTS (SELECT 1 FROM Personal WHERE cedula_profesional = p_cedula) THEN
-        RAISE EXCEPTION 'Ya existe un empleado con la cédula profesional "%".', p_cedula;
-    END IF;
-
-    -- Verificar que la sucursal exista
-    IF NOT EXISTS (SELECT 1 FROM Sucursal WHERE id_sucursal = p_id_sucursal) THEN
-        RAISE EXCEPTION 'La sucursal con id % no existe.', p_id_sucursal;
-    END IF;
-
-    -- Insertar en la tabla supertipo Personal
-    INSERT INTO Personal(
-        cedula_profesional, id_sucursal, nombre,
-        apellido_paterno, apellido_materno,
-        RFC, horario, salario,
-        calle, num_ext, num_int, colonia
-    )
-    VALUES (
-        p_cedula, p_id_sucursal, p_nombre,
-        p_ap_paterno, p_ap_materno,
-        p_rfc, p_horario, p_salario,
-        p_calle, p_num_ext, p_num_int, p_colonia
-    );
-
-    -- Insertar en el subtipo Farmaceutico
-    INSERT INTO Farmaceutico(cedula_profesional)
-    VALUES (p_cedula);
-
-    RAISE NOTICE 'Farmacéutico "% %" registrado exitosamente con cédula %.', 
-                  p_nombre, p_ap_paterno, p_cedula;
+    RETURN v_total;
 END;
 $$
 LANGUAGE plpgsql;
 
--- Ejemplo de uso:
--- CALL registrar_farmaceutico(
---     '12345678', 1, 'Carlos', 'García', 'López',
---     'GALC900101ABC', 'matutino', 18000.00,
---     'Av. Universidad', '100', NULL, 'Copilco'
--- );
+-- Ejemplos de uso:
 
+-- Total de medicamentos comprados por un cliente
+-- SELECT total_medicamentos_cliente(1);
+
+-- Mostrar clientes con su total de medicamentos comprados
+-- SELECT 
+--     id_cliente,
+--     nombre,
+--     apellido_paterno,
+--     total_medicamentos_cliente(id_cliente) AS total_medicamentos
+-- FROM Cliente
+-- ORDER BY total_medicamentos DESC
+-- LIMIT 10;
+
+-- Stored Procedures
 
 -- ============================================================
--- SP ii: eliminar_producto
+-- SP i: eliminar_producto
 -- Elimina un medicamento dado su id_producto, eliminando primero
 -- todas sus referencias en tablas relacionadas para evitar
 -- violaciones de integridad referencial.
@@ -257,6 +177,72 @@ LANGUAGE plpgsql;
 
 -- Ejemplo de uso:
 -- CALL eliminar_producto(5);
+
+
+
+-- ============================================================
+-- SP ii: registrar_proveedor
+-- Registra un nuevo proveedor en la tabla Proveedor.
+-- Valida que:
+--   - La razón social no esté vacía ni tenga caracteres extraños.
+--   - El número de proveedor no esté ya registrado.
+-- Parámetros:
+--   p_numero_proveedor : identificador del proveedor
+--   p_razon_social     : nombre o razón social de la empresa
+--   p_calle            : calle del domicilio
+--   p_num_int          : número interior (puede ser NULL)
+--   p_num_ext          : número exterior (puede ser NULL)
+--   p_colonia          : colonia del domicilio
+-- ============================================================
+CREATE OR REPLACE PROCEDURE registrar_proveedor(
+    p_numero_proveedor IN INT,
+    p_razon_social     IN VARCHAR,
+    p_calle            IN VARCHAR,
+    p_num_int          IN VARCHAR,
+    p_num_ext          IN VARCHAR,
+    p_colonia          IN VARCHAR
+)
+AS $$
+DECLARE
+    -- Permite letras, números, espacios y puntuación común de nombres de empresa
+    v_regex_razon CONSTANT TEXT := '^[A-Za-záéíóúÁÉÍÓÚñÑüÜ0-9 .,&]+$';
+BEGIN
+    -- Validar que la razón social no esté vacía
+    IF p_razon_social IS NULL OR TRIM(p_razon_social) = '' THEN
+        RAISE EXCEPTION 'La razón social no puede estar vacía.';
+    END IF;
+
+    -- Validar formato de razón social
+    IF p_razon_social !~ v_regex_razon THEN
+        RAISE EXCEPTION 'La razón social "%" contiene caracteres no permitidos.', p_razon_social;
+    END IF;
+
+    -- Verificar que el número de proveedor no esté ya registrado
+    IF EXISTS (SELECT 1 FROM Proveedor WHERE numero_proveedor = p_numero_proveedor) THEN
+        RAISE EXCEPTION 'Ya existe un proveedor con número %.', p_numero_proveedor;
+    END IF;
+
+    -- Insertar el nuevo proveedor
+    INSERT INTO Proveedor (numero_proveedor, razon_social, calle, num_int, num_ext, colonia)
+    VALUES (p_numero_proveedor, TRIM(p_razon_social), p_calle, p_num_int, p_num_ext, p_colonia);
+
+    RAISE NOTICE 'Proveedor "%" registrado exitosamente con número %.', 
+                 TRIM(p_razon_social), p_numero_proveedor;
+END;
+$$
+LANGUAGE plpgsql;
+
+-- Ejemplo de uso:
+-- CALL registrar_proveedor(
+--     2000,
+--     'Laboratorios García S.A.',
+--     'Av. Insurgentes',
+--     NULL,
+--     '500',
+--     'Nápoles'
+-- );
+
+
     
 -- Disparadores
 
@@ -389,122 +375,67 @@ EXECUTE PROCEDURE trg_stock_compra();
 
 
 -- ============================================================
--- TRIGGER ii: calcular_precio_ticket
---
--- Cada vez que se genera un ticket, calcula:
---   precio_bruto = suma de (precio_publico * cantidad) de todos
---                  los medicamentos incluidos en ese ticket
---   descuento    = según cuántos tickets haya generado el cliente
---                  en el año 2026 ANTES del ticket actual:
---                    0  tickets previos → 0% descuento
---                    1-2 tickets previos → 5% descuento
---                    3-5 tickets previos → 10% descuento
---                    6+ tickets previos → 15% descuento
---   precio_neto  = precio_bruto * (1 - descuento/100)
---
--- Se crea una tabla auxiliar ResumenTicket para almacenar
--- los montos calculados.
+-- TRIGGER ii: auditar_cambios_precio
+-- Se dispara AFTER UPDATE sobre precio_publico o precio_unitario
+-- en la tabla Medicamento.
+-- Por cada campo que cambie, inserta un registro en
+-- AuditoriaPrecioMedicamento con: el producto, qué campo
+-- cambió, el valor anterior, el nuevo, el usuario de BD
+-- y la fecha/hora del cambio.
+-- Sirve para rastrear el historial de precios a lo largo
+-- del tiempo.
 -- ============================================================
 
--- Tabla auxiliar para precios del ticket
-CREATE TABLE IF NOT EXISTS ResumenTicket (
-    id_ticket     INT PRIMARY KEY,
-    precio_bruto  NUMERIC(12,2) NOT NULL DEFAULT 0,
-    porcentaje_descuento INT NOT NULL DEFAULT 0,
-    precio_neto   NUMERIC(12,2) NOT NULL DEFAULT 0,
-    FOREIGN KEY (id_ticket) REFERENCES Ticket(id_ticket)
-        ON DELETE CASCADE ON UPDATE CASCADE
+-- Tabla de auditoría
+CREATE TABLE IF NOT EXISTS AuditoriaPrecioMedicamento (
+    id_auditoria     INT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    id_producto      INT           NOT NULL,
+    nombre_producto  VARCHAR(100),
+    campo_modificado VARCHAR(20)   NOT NULL,  -- 'precio_publico' o 'precio_unitario'
+    precio_anterior  NUMERIC(10,2),
+    precio_nuevo     NUMERIC(10,2),
+    usuario          VARCHAR(100),
+    fecha_cambio     TIMESTAMP     NOT NULL DEFAULT NOW()
 );
 
--- -------------------------------------------------------
--- Función del trigger para Ticket
--- Se dispara AFTER INSERT en Ticket.
--- En ese momento el ticket aún no tiene medicamentos
--- (esos llegan después vía IncluirMedicamento), por lo que
--- calcula el descuento y deja precio_bruto = 0.
--- El trigger de IncluirMedicamento actualiza el bruto/neto.
--- -------------------------------------------------------
-CREATE OR REPLACE FUNCTION trg_calcular_precio_ticket()
+-- Función del trigger
+CREATE OR REPLACE FUNCTION trg_auditar_precio_fn()
 RETURNS TRIGGER AS $$
-DECLARE
-    v_tickets_previos INT;
-    v_descuento       INT;
 BEGIN
-    -- Contar tickets previos del cliente en el año 2026
-    SELECT COUNT(*) INTO v_tickets_previos
-    FROM Ticket
-    WHERE id_cliente = NEW.id_cliente
-      AND EXTRACT(YEAR FROM fecha) = 2026
-      AND id_ticket <> NEW.id_ticket;  -- excluir el ticket recién insertado
-
-    -- Determinar porcentaje de descuento
-    IF v_tickets_previos = 0 THEN
-        v_descuento := 0;
-    ELSIF v_tickets_previos BETWEEN 1 AND 2 THEN
-        v_descuento := 5;
-    ELSIF v_tickets_previos BETWEEN 3 AND 5 THEN
-        v_descuento := 10;
-    ELSE
-        v_descuento := 15;
+    -- Registrar cambio en precio_publico
+    IF OLD.precio_publico IS DISTINCT FROM NEW.precio_publico THEN
+        INSERT INTO AuditoriaPrecioMedicamento
+            (id_producto, nombre_producto, campo_modificado,
+             precio_anterior, precio_nuevo, usuario)
+        VALUES
+            (OLD.id_producto, OLD.nombre, 'precio_publico',
+             OLD.precio_publico, NEW.precio_publico, CURRENT_USER);
     END IF;
 
-    -- Insertar en ResumenTicket (precio_bruto y neto se actualizan
-    -- cuando se agreguen medicamentos al ticket)
-    INSERT INTO ResumenTicket(id_ticket, precio_bruto, porcentaje_descuento, precio_neto)
-    VALUES (NEW.id_ticket, 0, v_descuento, 0);
-
-    RAISE NOTICE 'Ticket % creado. Tickets previos del cliente en 2026: %. Descuento asignado: %%%.',
-                  NEW.id_ticket, v_tickets_previos, v_descuento;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE TRIGGER trigger_precio_ticket
-AFTER INSERT
-ON Ticket
-FOR EACH ROW
-EXECUTE PROCEDURE trg_calcular_precio_ticket();
-
-
--- -------------------------------------------------------
--- Función complementaria: recalcular precio al agregar
--- medicamentos al ticket (IncluirMedicamento).
--- Actualiza precio_bruto y precio_neto en ResumenTicket.
--- -------------------------------------------------------
-CREATE OR REPLACE FUNCTION trg_recalcular_precio_ticket()
-RETURNS TRIGGER AS $$
-DECLARE
-    v_nuevo_bruto   NUMERIC(12,2);
-    v_descuento     INT;
-    v_nuevo_neto    NUMERIC(12,2);
-BEGIN
-    -- Recalcular el precio bruto total del ticket
-    SELECT COALESCE(SUM(m.precio_publico * im.cantidad), 0)
-    INTO v_nuevo_bruto
-    FROM IncluirMedicamento im
-    JOIN Medicamento m ON im.id_producto = m.id_producto
-    WHERE im.id_ticket = NEW.id_ticket;
-
-    -- Obtener el descuento ya calculado para este ticket
-    SELECT porcentaje_descuento INTO v_descuento
-    FROM ResumenTicket
-    WHERE id_ticket = NEW.id_ticket;
-
-    v_nuevo_neto := v_nuevo_bruto * (1.0 - v_descuento / 100.0);
-
-    -- Actualizar ResumenTicket
-    UPDATE ResumenTicket
-    SET precio_bruto = v_nuevo_bruto,
-        precio_neto  = v_nuevo_neto
-    WHERE id_ticket = NEW.id_ticket;
+    -- Registrar cambio en precio_unitario
+    IF OLD.precio_unitario IS DISTINCT FROM NEW.precio_unitario THEN
+        INSERT INTO AuditoriaPrecioMedicamento
+            (id_producto, nombre_producto, campo_modificado,
+             precio_anterior, precio_nuevo, usuario)
+        VALUES
+            (OLD.id_producto, OLD.nombre, 'precio_unitario',
+             OLD.precio_unitario, NEW.precio_unitario, CURRENT_USER);
+    END IF;
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$
+LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER trigger_recalcular_precio
-AFTER INSERT
-ON IncluirMedicamento
-FOR EACH ROW
-EXECUTE PROCEDURE trg_recalcular_precio_ticket();
+-- Trigger sobre Medicamento, solo se activa si cambian los precios
+CREATE OR REPLACE TRIGGER trg_auditar_precio
+    AFTER UPDATE OF precio_publico, precio_unitario
+    ON Medicamento
+    FOR EACH ROW
+    EXECUTE PROCEDURE trg_auditar_precio_fn();
+
+-- Ejemplo de uso:
+-- Cambiar precio de un medicamento:
+-- UPDATE Medicamento SET precio_publico = 199.99 WHERE id_producto = 1;
+-- Ver auditoría:
+-- SELECT * FROM AuditoriaPrecioMedicamento ORDER BY fecha_cambio DESC;
