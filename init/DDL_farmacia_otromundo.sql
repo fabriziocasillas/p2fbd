@@ -1,3 +1,8 @@
+-- =============================================================
+-- Proyecto: Farmacia de otro mundo
+-- Equipo: Añañines
+-- Fundamentos de Bases de Datos, Facultad de Ciencias, UNAM 2026-II
+-- =============================================================
 -- Creación del esquema
 
 DROP SCHEMA IF EXISTS public CASCADE;
@@ -785,6 +790,8 @@ COMMENT ON CONSTRAINT personal_d6 ON Personal IS 'Valida que la colonia no sea v
 COMMENT ON CONSTRAINT personal_d7 ON Personal IS 'Valida que el numero exterior no sea vacio si existe';
 COMMENT ON CONSTRAINT personal_d8 ON Personal IS 'Valida que el numero interior no sea vacio si existe';
 COMMENT ON CONSTRAINT personal_d9 ON Personal IS 'Valida que el salario sea mayor o igual a 0';
+COMMENT ON CONSTRAINT personal_d10 ON Personal IS 'Valida que el turno de trabajo del personal sea alguno de los tres válidos: matutino, vespertino o nocturno';
+
 
 --Pk Personal
 ALTER TABLE Personal ADD CONSTRAINT personal_pkey
@@ -997,6 +1004,7 @@ CHECK(id_cliente > 0);
 
 COMMENT ON CONSTRAINT ticket_d1 ON Ticket IS 'Valida que la fecha no sea nula';
 COMMENT ON CONSTRAINT ticket_d2 ON Ticket IS 'Valida que la hora no sea nula';
+COMMENT ON CONSTRAINT ticket_cliente_check ON Ticket IS 'Valida que el id del cliente sea un número positivo';
 
 --Pk Ticket
 ALTER TABLE Ticket ADD CONSTRAINT ticket_pkey
@@ -1056,14 +1064,24 @@ ALTER TABLE Consulta ALTER COLUMN fecha SET NOT NULL;
 ALTER TABLE Consulta ALTER COLUMN hora SET NOT NULL;
 ALTER TABLE Consulta ALTER COLUMN precio SET NOT NULL;
 
+
 ALTER TABLE Consulta ADD CONSTRAINT cm_d2
 CHECK(diagnostico IS NULL OR diagnostico <> '');
 
 ALTER TABLE Consulta ADD CONSTRAINT cm_d3
 CHECK(cedula_profesional_medico <> '');
 
+ALTER TABLE Consulta ADD CONSTRAINT cm_d4 -- Puede no ser obligatorio que una enfermera asista siempre una consulta
+CHECK(
+    cedula_profesional_enfermera IS NULL 
+    OR cedula_profesional_enfermera <> ''
+);
+
 COMMENT ON CONSTRAINT cm_d1 ON Consulta IS 'Valida que el precio sea mayor o igual a 0';
 COMMENT ON CONSTRAINT cm_d2 ON Consulta IS 'Valida que el diagnostico no sea vacio si existe';
+COMMENT ON CONSTRAINT cm_d3 ON Consulta IS 'Valida que la cédula profesional del médico no sea una cadena vacía';
+COMMENT ON CONSTRAINT cm_d4 ON Consulta IS 'Valida que la cédula profesional de la enfermera no sea una cadena vacía si existe';
+
 
 --Pk CM
 ALTER TABLE Consulta ADD CONSTRAINT cm_pkey
@@ -1211,6 +1229,9 @@ ALTER TABLE IncluirMedicamento ALTER COLUMN id_ticket SET NOT NULL;
 ALTER TABLE IncluirMedicamento ADD CONSTRAINT incluir_medicamento_ids_check
 CHECK(id_producto > 0 AND id_ticket > 0);
 
+COMMENT ON CONSTRAINT incluir_medicamento_ids_check ON IncluirMedicamento IS 
+'Asegura que los ids de producto y ticket sean ids válidos, es decir, positivos';
+
 --FKs IM
 ALTER TABLE IncluirMedicamento ADD CONSTRAINT inc_med_ticket_fkey
 FOREIGN KEY (id_ticket) REFERENCES Ticket(id_ticket)
@@ -1251,6 +1272,9 @@ ALTER TABLE IncluirInsumo ALTER COLUMN id_producto SET NOT NULL;
 ALTER TABLE IncluirInsumo ALTER COLUMN id_ticket SET NOT NULL;
 ALTER TABLE IncluirInsumo ADD CONSTRAINT incluir_insumo_ids_check
 CHECK(id_producto > 0 AND id_ticket > 0);
+
+COMMENT ON CONSTRAINT incluir_insumo_ids_check ON IncluirInsumo IS 
+'Asegura que los ids de producto y ticket sean ids válidos, es decir, positivos';
 
 --FKs II
 ALTER TABLE IncluirInsumo ADD CONSTRAINT inc_insumo_ticket_fkey
@@ -1306,6 +1330,9 @@ CHECK(
     fecha_recibimiento <= CURRENT_DATE
 );
 
+COMMENT ON CONSTRAINT proveer_medicamento_check ON ProveerMedicamento IS 
+'Revisa de manera general que id_producto, id_sucursal, numero_proveedor y fecha_recibimiento sean datos válidos en nivel de forma y congruencia con la fecha.';
+
 --FKs PM
 ALTER TABLE ProveerMedicamento ADD CONSTRAINT prov_med_proveedor_fkey
 FOREIGN KEY (numero_proveedor) REFERENCES Proveedor(numero_proveedor)
@@ -1338,7 +1365,6 @@ CHECK(cantidad >= 0);
 
 COMMENT ON CONSTRAINT prov_med_d1 ON ProveerMedicamento IS 'Valida que la cantidad sea mayor o igual a 0';
 
--- TODO: Inicia
 --VenderMedicamento
 CREATE TABLE VenderMedicamento(
     id_producto INT,
@@ -1358,6 +1384,9 @@ CHECK(
     id_producto > 0 AND 
     id_sucursal > 0
 );
+
+COMMENT ON CONSTRAINT vender_medicamento_check ON VenderMedicamento IS
+'Revisa que el id de producto y sucursal sean números positivos';
 
 --FKs VM
 ALTER TABLE VenderMedicamento ADD CONSTRAINT vender_med_producto_fkey
@@ -1407,6 +1436,9 @@ CHECK(
     numero_proveedor > 0 AND
     fecha_recibimiento <= CURRENT_DATE
 );
+
+COMMENT ON CONSTRAINT proveer_insumo_check ON ProveerInsumo IS 
+'Revisa de manera general que id_producto, id_sucursal, numero_proveedor y fecha_recibimiento sean datos válidos en nivel de forma y congruencia con la fecha.';
 
 --FKs PI
 ALTER TABLE ProveerInsumo ADD CONSTRAINT prov_insumo_proveedor_fkey
@@ -1462,6 +1494,9 @@ CHECK(
     id_sucursal > 0
 );
 
+COMMENT ON CONSTRAINT vender_insumo_check ON VenderInsumo IS 
+'Revisa que el id de producto y sucursal sean números positivos';
+
 --FKs VI
 ALTER TABLE VenderInsumo ADD CONSTRAINT vender_insumo_producto_fkey
 FOREIGN KEY (id_producto) REFERENCES Insumo(id_producto)
@@ -1499,6 +1534,9 @@ ALTER TABLE Preparar ALTER COLUMN id_producto SET NOT NULL;
 ALTER TABLE Preparar ADD CONSTRAINT preparar_check
 CHECK(cedula_profesional ~ '^[0-9]+$' AND id_producto > 0);
 ALTER TABLE Preparar ALTER COLUMN cantidad SET NOT NULL;
+
+COMMENT ON CONSTRAINT preparar_check ON Preparar IS 
+'Valida que la cédula profesional sea válida y que el id de producyo sea un entero positivo';
 
 --FK a Farmaceutico
 ALTER TABLE Preparar ADD CONSTRAINT preparar_farmaceutico_fkey
